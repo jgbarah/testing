@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+    <!-- <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script> -->
+    <script src="https://rawgit.com/aframevr/aframe/cf15c15/dist/aframe-master.min.js"></script>
   </head>
   <body>
     <a-scene>
@@ -10,6 +11,8 @@
       <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D" shadow></a-cylinder>
       <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" shadow></a-plane>
       <a-sky color="#ECECEC"></a-sky>
+      
+      <a-entity oculus-go-controls></a-entity>
     </a-scene>
   </body>
 </html>

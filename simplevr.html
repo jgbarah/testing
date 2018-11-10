@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!-- Movement in Oculus Go
+  When in Oculus Go, I can move using the orientation of the control
+  (seen in scene as a laser) and the touch button (touch front, moves
+  forward, touch back moves backwards)
+  -->
+
 <html>
   <head>
     <!-- <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script> -->
@@ -14,7 +20,7 @@
       <a-sky color="#ECECEC"></a-sky>
        
       <a-entity movement-controls="fly: true" position="0 0 0">
-        <a-entity camera position="0 1.6 0"></a-entity>
+        <a-entity camera position="0 1.6 0" wasd-controls></a-entity>
         <a-entity laser-controls="hand: right"></a-entity>
         <a-entity oculus-go-controls x-button-listener></a-entity>
       </a-entity>

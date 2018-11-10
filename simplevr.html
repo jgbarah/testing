@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <!-- Movement in Oculus Go
-  When in Oculus Go, I can move using the orientation of the control
-  (seen in scene as a laser) and the touch button (touch front, moves
-  forward, touch back moves backwards)
+  When in Oculus Go:
+   - Gaze is used for relative direction in which the touch button
+   works (touch front, moves forward, touch back moves backwards,
+   right and left the same).
+   - I also see the laser, pointing with the control (thx to laser-controls)
+  When in desktop, I can move using arrows (thx to wasd-controls)
   -->
 
 <html>
@@ -21,7 +24,7 @@
        
       <a-entity movement-controls="fly: true" position="0 0 0">
         <a-entity camera position="0 1.6 0" wasd-controls></a-entity>
-        <a-entity laser-controls="hand: right"></a-entity>
+        <!-- <a-entity laser-controls="hand: right"></a-entity> -->
         <a-entity oculus-go-controls x-button-listener></a-entity>
       </a-entity>
     </a-scene>

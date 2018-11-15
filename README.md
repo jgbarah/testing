@@ -9,3 +9,4 @@ Repo for testing misc stuff...
 for defining antialiasing and some other stuff
 * [Mouse](mouse.html): testing using the mouse to select elements
 from the scene
+* [AR](ar.html): testing AR

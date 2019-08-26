@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!-- Movement in Oculus Go
+  When in Oculus Go, gaze is used for relative direction in which the touch button
+   works (touch front, moves forward, touch back moves backwards,
+   right and left the same).
+  When in desktop, I can move using arrows (thx to wasd-controls)
+  -->
+
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v6.0.0/dist/aframe-extras.min.js"></script>
+    <script src="treemap.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-box position="2 0.5 -3" rotation="0 45 0" color="#4CC3D9" shadow></a-box>
+      <a-sphere position="2 1.25 -5" radius="1.25" color="#EF2D5E" shadow></a-sphere>
+      <a-cylinder position="3 0.75 -3" radius="0.5" height="1.5" color="#FFC65D" shadow></a-cylinder>
+      <a-plane position="2 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" shadow></a-plane>
+      <a-sky color="#ECECEC"></a-sky>
+       
+      <a-entity movement-controls="fly: true" position="0 0 0">
+        <a-entity camera position="0 1.6 0" look-controls wasd-controls></a-entity>
+        <a-entity oculus-go-controls x-button-listener></a-entity>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>

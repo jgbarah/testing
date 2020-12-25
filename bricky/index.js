@@ -4,10 +4,68 @@ if (typeof AFRAME === 'undefined') {
     throw new Error('Component attempted to register before AFRAME was available.');
   };
 
+
 /**
  * Brick
+ * 
+ *   Adds a magnet component while grabbing
  */
 AFRAME.registerComponent('brick', {
+  schema: {
+  },
+
+  /**
+    * Set if component needs multiple instancing.
+    */
+  multiple: false,
+  
+  /**
+    * Called once when component is attached. Generally for initial setup.
+    */
+  init: function () {
+    const el = this.el;
+
+    // Add grabbable component, so that you can grab bricks
+    el.setAttribute('grabbable', {});
+
+    // Grab starts: add magnet to element
+    el.addEventListener("grab-start", function (event) {
+      el.setAttribute('magnet', {});
+    });
+
+    // Grab ends: animate to position if previewing, and remove magnet
+    el.addEventListener("grab-end", function (event) {
+      previewEl = el.components['magnet'].previewEl;
+      if (previewEl) {
+        let position = previewEl.getAttribute('position');
+        let rotation = previewEl.getAttribute('rotation');
+        el.setAttribute('animation__rotation',
+                        {'property': 'rotation',
+                         'to': rotation,
+                         'dur': 200});
+        el.setAttribute('animation__position', 
+                        {'property': 'position',
+                         'to': {x: position.x, y: position.y, z: position.z},
+                         'dur': 200});
+        el.sceneEl.removeChild(previewEl);
+        el.removeAttribute('magnet');
+        previewEl = false;
+      }
+    });
+  },
+
+  update: function (oldData) {
+  },
+  
+  remove: function () { },
+});
+   
+ /**
+  * Magnet
+  * 
+  *   Elements with this component will get attracted by assembled bricks.
+  */
+AFRAME.registerComponent('magnet', {
   schema: {
   },
   
@@ -23,41 +81,26 @@ AFRAME.registerComponent('brick', {
     const me = this;
     const el = this.el;
     let collidingEl = null;
-    let previewEl = null;
+    this.previewEl = null;
+
+    // Add collider
+    el.setAttribute('aabb-collider', {'objects': '.brick', 'debug': true});
 
     // Remove animations when done
     el.addEventListener('animationcomplete', function(event) {
       el.removeAttribute(event.detail.name);
     });
 
-    // Grab ends: animate to position if previewing
-    el.addEventListener("grab-end", function (event) {
-      if (previewEl) {
-        let position = previewEl.getAttribute('position');
-        let rotation = previewEl.getAttribute('rotation');
-        el.setAttribute('animation__rotation',
-                        {'property': 'rotation',
-                         'to': rotation,
-                         'dur': 200});
-        el.setAttribute('animation__position', 
-                        {'property': 'position',
-                         'to': {x: position.x, y: position.y, z: position.z},
-                         'dur': 200});
-        el.sceneEl.removeChild(previewEl);
-        previewEl = false;
-      }
-    });
-
     // Hit starts: start preview (in place where it would be animated to)
     el.addEventListener("hitstart", function (event) {
         collidingEl = el.components['aabb-collider']['closestIntersectedEl'];
-        previewEl = me.previewElement(collidingEl);
+        me.previewEl = me.previewElement(collidingEl);
     });
     // Hit ends: finish preview
     el.addEventListener("hitend", function (event) {
-      if (previewEl) {
-        el.sceneEl.removeChild(previewEl);
-        previewEl = null;
+      if (me.previewEl) {
+        el.sceneEl.removeChild(me.previewEl);
+        me.previewEl = null;
       };
     });
   },

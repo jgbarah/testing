@@ -28,17 +28,25 @@ AFRAME.registerComponent('brick', {
     // Add grabbable component, so that you can grab bricks
     el.setAttribute('grabbable', {});
 
+    // Listener for animationcomplete: Remove animations when done
+    el.addEventListener('animationcomplete', function(event) {
+      el.removeAttribute(event.detail.name);
+    });
+    
     // Grab starts: add magnet to element
-    el.addEventListener("grab-start", function (event) {
+    el.addEventListener('grab-start', function (event) {
+      console.log('grab-start');
       el.setAttribute('magnet', {});
     });
 
     // Grab ends: animate to position if previewing, and remove magnet
-    el.addEventListener("grab-end", function (event) {
-      previewEl = el.components['magnet'].previewEl;
+    el.addEventListener('grab-end', function (event) {
+      console.log('grab-end', el.components['magnet'].previewEl);
+      let previewEl = el.components['magnet'].previewEl;
       if (previewEl) {
         let position = previewEl.getAttribute('position');
         let rotation = previewEl.getAttribute('rotation');
+        console.log(el.getAttribute('position'), position);
         el.setAttribute('animation__rotation',
                         {'property': 'rotation',
                          'to': rotation,
@@ -48,9 +56,9 @@ AFRAME.registerComponent('brick', {
                          'to': {x: position.x, y: position.y, z: position.z},
                          'dur': 200});
         el.sceneEl.removeChild(previewEl);
-        el.removeAttribute('magnet');
         previewEl = false;
       }
+      el.removeAttribute('magnet');
     });
   },
 
@@ -78,37 +86,47 @@ AFRAME.registerComponent('magnet', {
     * Called once when component is attached. Generally for initial setup.
     */
   init: function () {
-    const me = this;
     const el = this.el;
-    let collidingEl = null;
     this.previewEl = null;
 
     // Add collider
-    el.setAttribute('aabb-collider', {'objects': '.brick', 'debug': true});
+    el.setAttribute('aabb-collider', {'objects': '.brick', 'debug': false});
 
-    // Remove animations when done
-    el.addEventListener('animationcomplete', function(event) {
-      el.removeAttribute(event.detail.name);
-    });
-
-    // Hit starts: start preview (in place where it would be animated to)
-    el.addEventListener("hitstart", function (event) {
-        collidingEl = el.components['aabb-collider']['closestIntersectedEl'];
-        me.previewEl = me.previewElement(collidingEl);
-    });
-    // Hit ends: finish preview
-    el.addEventListener("hitend", function (event) {
-      if (me.previewEl) {
-        el.sceneEl.removeChild(me.previewEl);
-        me.previewEl = null;
+    // Listener for hitstart: start preview (in place where it would be animated to)
+    this.hitstartListener = function (event) {
+      console.log('hitstart');
+      let collidingEl = el.components['aabb-collider']['closestIntersectedEl'];
+      if (this.previewEl) {
+        // We had a preview, from other collidingEl. Remove it.
+        el.sceneEl.removeChild(this.previewEl);
       };
-    });
+      this.previewEl = this.previewElement(collidingEl);
+    }.bind(this);
+
+    // Listener for hitend: finish preview
+    this.hitendListener = function (event) {
+      console.log('hitend');
+      if (this.previewEl) {
+        this.el.sceneEl.removeChild(this.previewEl);
+        this.previewEl = null;
+      };
+    }.bind(this);
+
+    el.addEventListener("hitstart", this.hitstartListener);
+    el.addEventListener("hitend", this.hitendListener);
   },
   
   update: function (oldData) {
   },
   
-  remove: function () { },
+  remove: function () {
+    // Remove listeners, collider
+    this.el.removeEventListener('animationcomplete', this.animationcompleteListener)
+    this.el.removeEventListener("hitstart", this.hitstartListener);
+    this.el.removeEventListener("hitend", this.hitendListener);
+
+    this.el.removeAttribute('aabb-collider');
+  },
 
   /*
    * Find the place (position and rotation) where preview should appear,
@@ -145,6 +163,7 @@ AFRAME.registerComponent('magnet', {
     let rotation = {x: 0, y: 0, z: 0}
 
     let newEl = document.createElement('a-entity');
+    newEl.setAttribute('class', 'magnet-preview');
     newEl.setAttribute('geometry', {'primitive': 'box',
                                     'width': 0.5, 'height': 0.5, 'depth': 0.5});
     newEl.setAttribute('material', {'color': color, 'wireframe': true});
